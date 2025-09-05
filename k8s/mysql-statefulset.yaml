@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mysql
+  namespace: demo
+spec:
+  serviceName: mysql-hl
+  replicas: 1
+  selector:
+    matchLabels: { app: mysql }
+  template:
+    metadata:
+      labels: { app: mysql }
+    spec:
+      containers:
+      - name: mysql
+        image: mysql:8.0
+        ports: [{ containerPort: 3306 }]
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          valueFrom: { secretKeyRef: { name: mysql-secret, key: mysql-root-password } }
+        - name: MYSQL_DATABASE
+          value: appdb
+        - name: MYSQL_USER
+          valueFrom: { secretKeyRef: { name: mysql-secret, key: mysql-user } }
+        - name: MYSQL_PASSWORD
+          valueFrom: { secretKeyRef: { name: mysql-secret, key: mysql-password } }
+        volumeMounts:
+        - name: data
+          mountPath: /var/lib/mysql
+        readinessProbe:
+          exec: { command: ["sh","-c","mysqladmin ping -h 127.0.0.1 -p$MYSQL_ROOT_PASSWORD"] }
+          initialDelaySeconds: 20
+          periodSeconds: 10
+        livenessProbe:
+          exec: { command: ["sh","-c","mysqladmin ping -h 127.0.0.1 -p$MYSQL_ROOT_PASSWORD"] }
+          initialDelaySeconds: 60
+          periodSeconds: 15
+  volumeClaimTemplates:
+  - metadata: { name: data }
+    spec:
+      accessModes: ["ReadWriteOnce"]
+      resources: { requests: { storage: 5Gi } }
