@@ -1,0 +1,9 @@
+<!doctype html><html><body>
+<h2>3-Tier Demo (Web → App → DB)</h2>
+<p id="hello">Loading /api/hello …</p>
+<p id="db">Loading /db …</p>
+<script>
+fetch('/api/hello').then(r=>r.text()).then(t=>document.getElementById('hello').innerText=t);
+fetch('/db').then(r=>r.text()).then(t=>document.getElementById('db').innerText=t);
+</script>
+</body></html>
