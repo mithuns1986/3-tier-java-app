@@ -1,34 +1,39 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: app
+  name: hello
   namespace: demo
 spec:
-  replicas: 2
-  selector: { matchLabels: { app: app } }
+  replicas: 2  # later we’ll scale to 4
+  selector:
+    matchLabels:
+      app: hello
   template:
     metadata:
-      labels: { app: app }
+      labels:
+        app: hello
     spec:
       containers:
-      - name: app
-        image: REPLACE_ME_ECR_APP:REPLACE_ME_TAG
-        ports: [{ containerPort: 8080 }]
-        env:
-        - name: SPRING_DATASOURCE_URL
-          value: jdbc:mysql://mysql.demo.svc.cluster.local:3306/appdb
-        - name: SPRING_DATASOURCE_USERNAME
-          valueFrom: { secretKeyRef: { name: mysql-secret, key: mysql-user } }
-        - name: SPRING_DATASOURCE_PASSWORD
-          valueFrom: { secretKeyRef: { name: mysql-secret, key: mysql-password } }
-        readinessProbe:
-          httpGet: { path: /healthz, port: 8080 }
-          initialDelaySeconds: 5
-          periodSeconds: 5
-        livenessProbe:
-          httpGet: { path: /healthz, port: 8080 }
-          initialDelaySeconds: 15
-          periodSeconds: 10
-        resources:
-          requests: { cpu: "100m", memory: "128Mi" }
-          limits:   { cpu: "500m", memory: "512Mi" }
+        - name: app
+          image: REPLACE_ME_ECR_URI:REPLACE_ME_TAG
+          ports:
+            - containerPort: 8080
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 8080
+            initialDelaySeconds: 15
+            periodSeconds: 10
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
