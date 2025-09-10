@@ -1,13 +1,13 @@
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
-  name: app-hpa
+  name: hello-hpa
   namespace: demo
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
-    name: app
+    name: hello
   minReplicas: 2
   maxReplicas: 6
   metrics:
